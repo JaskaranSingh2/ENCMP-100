@@ -103,6 +103,7 @@ def menu():
     print("0. Exit program")
     print("1. Print database")
     print("2. Limit dimension")
+    print("3. Plot one tour")
     print()
     choice = int(input("Choice (0-3)? "))  # Getting the user input for the choice
     while not (0 <= choice <= 3):  # Validating the choice
