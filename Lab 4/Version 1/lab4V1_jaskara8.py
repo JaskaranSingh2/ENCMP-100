@@ -43,9 +43,6 @@ def plotEuc2D(coord, comment, name):
     - coord: numpy array of shape (N, 2) representing the x and y coordinates
     - comment: string representing the plot comment
     - name: string representing the plot name
-
-    Returns:
-    None
     """
     x = coord[:, 0]  # Extracting the x-coordinates from the coord array
     y = coord[:, 1]  # Extracting the y-coordinates from the coord array
@@ -64,9 +61,6 @@ def tspPrint(tsp):
 
     Parameters:
     - tsp: list of lists representing the TSP data
-
-    Returns:
-    None
     """
     print()
     print("NUM  FILE NAME  EDGE TYPE  DIMENSION  COMMENT")
@@ -84,9 +78,6 @@ def tspPlot(tsp):
 
     Parameters:
     - tsp: list of lists representing the TSP data
-
-    Returns:
-    None
     """
     num = int(input("Number (EUC_2D)? "))  # Getting the user input for the tour number
     tsp1 = tsp[num]  # Selecting the tour from the tsp data
