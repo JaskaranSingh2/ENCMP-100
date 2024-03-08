@@ -30,45 +30,46 @@
 # followed by percentages as above. Email a link to or a copy of the
 # source to the lab instructor before the assignment is due.
 #
+
 import scipy.io as io
+import matplotlib.pyplot as plt
 import numpy as np
 
-tsp = io.loadmat('tspData.mat', squeeze_me=True)
-tsp = np.ndarray.tolist(tsp['tsp'])
-file = open('tspAbout.txt','r')
-print(file.read())
-file.close()
-print()
-print("MAIN MENU")
-print("0. Exit program")
-print("1. Print database")
-print("2. Limit dimension")
-print("3. Plot one tour")
-print()
-choice = int(input("Choice (0-3)? "))
-while not (0 <= choice <= 3):
-    choice = int(input("Choice (0-3)? "))
+def plotEuc2D(coord, comment, name):
+    x = coord[:, 0]
+    y = coord[:, 1]
+    plt.plot(x, y, 'bo-')
+    plt.plot([x[0], x[-1]], [y[0], y[-1]], 'r-')
+    plt.xlabel('x-Coordinate')
+    plt.ylabel('y-Coordinate')
+    plt.title(comment)
+    plt.savefig('tspPlot.png')
+    plt.legend([name], loc='upper right')
+    plt.show()
 
-while choice != 0:
-    if choice == 1:
-        print()
-        print("NUM  FILE NAME  EDGE TYPE  DIMENSION  COMMENT")
-        for k in range(1,len(tsp)):
-            name = tsp[k][0]
-            edge = tsp[k][5]
-            dimension = tsp[k][3]
-            comment = tsp[k][2]
-            print("%3d  %-9.9s  %-9.9s  %9d  %s"
-                  % (k,name,edge,dimension,comment))
 
-    elif choice == 3:
-        num = int(input("Number (EUC_2D)? "))
-        edge = tsp[num][5]
-        if edge == 'EUC_2D':
-            print("Valid (%s)!!!" % edge)
-        else:
-            print("Invalid (%s)!!!" % edge)
+def tspPrint(tsp):
+    print()
+    print("NUM  FILE NAME  EDGE TYPE  DIMENSION  COMMENT")
+    for k in range(1,len(tsp)):
+        name = tsp[k][0]
+        edge = tsp[k][5]
+        dimension = tsp[k][3]
+        comment = tsp[k][2]
+        print("%3d  %-9.9s  %-9.9s  %9d  %s"
+              % (k,name,edge,dimension,comment))
 
+def tspPlot(tsp):
+    num = int(input("Number (EUC_2D)? "))
+    tsp1 = tsp[num]
+    edge = tsp1[5]
+    if edge == 'EUC_2D':
+        print("Valid (%s)!!!" % edge)
+        plotEuc2D(tsp1[10], tsp1[2], tsp1[0])
+    else:
+        print("Invalid (%s)!!!" % edge)
+
+def menu():
     print()
     print("MAIN MENU")
     print("0. Exit program")
@@ -79,3 +80,23 @@ while choice != 0:
     choice = int(input("Choice (0-3)? "))
     while not (0 <= choice <= 3):
         choice = int(input("Choice (0-3)? "))
+    return choice
+
+def main():
+    tsp = io.loadmat('tspData.mat', squeeze_me=True)
+    tsp = np.ndarray.tolist(tsp['tsp'])
+    file = open('tspAbout.txt','r')
+    print(file.read())
+    file.close()
+
+    choice = menu()
+    while choice != 0:
+        if choice == 1:
+            tspPrint(tsp)
+        elif choice == 3:
+            tspPlot(tsp)
+
+        choice = menu()
+
+if __name__ == "__main__":
+    main()
