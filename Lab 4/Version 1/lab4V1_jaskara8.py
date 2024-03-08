@@ -46,7 +46,7 @@ def plotEuc2D(coord, comment, name):
     """
     x = coord[:, 0]  # Extracting the x-coordinates from the coord array
     y = coord[:, 1]  # Extracting the y-coordinates from the coord array
-    plt.plot(x, y, 'bo-')  # Plotting the coordinates as blue dots connected by lines
+    plt.plot(x, y, 'o-', 'blue')  # Plotting the coordinates as blue dots connected by lines
     plt.plot([x[0], x[-1]], [y[0], y[-1]], 'r-')  # Plotting a red line connecting the first and last coordinates
     plt.xlabel('x-Coordinate')  # Setting the x-axis label
     plt.ylabel('y-Coordinate')  # Setting the y-axis label
