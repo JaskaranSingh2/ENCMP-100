@@ -30,15 +30,16 @@
 #
 import numpy as np
 from scipy import stats
+import csv
 import matplotlib.pyplot as plt
 
 def main():
-    data = loaddata('horizons_results.txt')  # Load data from the 'horizons_results' file
+    data = loaddata('horizons_results')  # Load data from the 'horizons_results' file
     data = locate(data)  # Locate the perihelia in the data
     data = select(data, 50, ('Jan', 'Feb', 'Mar'))  # Select data based on year and month at half-century intervals
     data = refine(data, 'horizons_results')  # Refine the data
-    makeplot(data, 'horizons_results.txt')  # Make a plot of the data
-    savedata(data, 'horizons_results.txt')  # Save the selected data to a file
+    makeplot(data, 'horizons_results')  # Make a plot of the data
+    savedata(data, 'horizons_results')  # Save the selected data to a file
 
 def refine(data, filename):
     """
@@ -60,21 +61,24 @@ def refine(data, filename):
 
 def savedata(data, filename):
     """
-    Save the selected data to a file.
+    Save the selected data to a CSV file.
     Args:
         data (list): The data to save.
         filename (str): The name of the output file.
     """
-    with open(filename, 'w') as file:
+    filename += '.csv'  # Add the .csv extension if it is not present
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        
         # Write the header
-        file.write("numdate,strdate,coord\n")
+        writer.writerow(["NUMDATE","STRDATE","XCOORD","YCOORD","ZCOORD"])
         
         # Write the data
         for datum in data:
             numdate = datum['numdate']
             strdate = datum['strdate']
             coord = ','.join(map(str, datum['coord']))
-            file.write(f"{numdate},{strdate},{coord}\n")
+            writer.writerow([numdate, strdate, coord])
 
 def loaddata(filename):
     """
@@ -86,6 +90,8 @@ def loaddata(filename):
     Returns:
         list: A list of dictionaries containing the loaded data.
     """
+    if filename == 'horizons_results':
+        filename = filename + '.txt'  # Add the file extension if it is not present
     file = open(filename,'r')  # Open the file for reading
     lines = file.readlines()  # Read all lines from the file
     file.close()  # Close the file
@@ -95,7 +101,7 @@ def loaddata(filename):
     for line in lines:
         if noSOE:
             if line.rstrip() == "$$SOE":  # Check if the start of the data section is reached
-                noSOE = False  # Set the flag to False to indicate the start of the data section
+                noSOE = False  # Set the flag to false to indicate the start of the data section
         elif line.rstrip() != "$$EOE":  # Check if the end of the data section is reached
             num = num+1  # Increment the line counter
             if num % 10000 == 0:
