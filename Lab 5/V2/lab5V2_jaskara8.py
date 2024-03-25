@@ -75,11 +75,11 @@ def savedata(data, filename):
         
         # Write the data
         for datum in data:
-            numdate = datum['numdate']
-            strdate = datum['strdate']
-            coord = ','.join(map(str, datum['coord']))
-            writer.writerow([numdate, strdate, coord])
-
+            numdate = datum['numdate']  # Extract the numerical date from the datum dictionary
+            strdate = datum['strdate']  # Extract the date string from the datum dictionary
+            coord = ','.join(map(str, datum['coord']))  # Convert the coordinate tuple to a comma-separated string
+            xcoord, ycoord, zcoord = map(float, coord.split(','))  # Split the coordinate string and convert each part to a float
+            writer.writerow([format(numdate, '.6f'), strdate, format(xcoord, '.6f'), format(ycoord, '.6f'), format(zcoord, '.6f')])  # Write the refined data to the CSV file
 def loaddata(filename):
     """
     Load data from a text file.
@@ -127,7 +127,7 @@ def str2dict(line):
         dict: A dictionary containing the converted data.
     """
     parts = line.split(',')  # Split the line of text by comma
-    numdate = int(float(parts[0]))  # Convert the first part to a float and then to an integer
+    numdate = (float(parts[0]))  # Convert the first part to a float
     strdate = parts[1][6:17]  # Extract the date string from the second part
     coord = tuple(map(float, parts[2:-1]))  # Convert the remaining parts to floats and create a tuple
     return {'numdate': numdate, 'strdate': strdate, 'coord': coord}  # Return a dictionary with the converted data
@@ -212,7 +212,8 @@ def add2plot(numdate, actual):
     for k in range(len(numdate)):
         bestfit.append(r[0]*numdate[k]+r[1])  # Calculate the best fit line values
     plt.plot(numdate, bestfit, 'b-')  # Plot the best fit line
-    slope = r[0] * 365.25  # Calculate the slope in arcsecs/year
-    plt.legend(["Actual data", f"Best fit line (Slope: {slope:.2f} arcsecs/year)"], loc="upper left")  # Add a legend to the plot
+    slope = r[0] * 365.25 * 100 # Calculate the slope in arcsecs/year
+    plt.title(f"Slope of the best fit line: {slope:.2f} arcsec/cent")  # Set the title of the plot with the slope of the best fit line
+    plt.legend(["Actual data", f"Best fit line"], loc="upper left")  # Add a legend to the plot
 
 main()  # Call the main function to start the program
