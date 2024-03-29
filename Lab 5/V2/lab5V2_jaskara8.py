@@ -214,6 +214,6 @@ def add2plot(numdate, actual):
     plt.plot(numdate, bestfit, 'b-')  # Plot the best fit line
     slope = r[0] * 365.25 * 100 # Calculate the slope in arcsecs/year
     plt.title(f"Slope of the best fit line: {slope:.2f} arcsec/cent")  # Set the title of the plot with the slope of the best fit line
-    plt.legend(["Actual data", f"Best fit line"], loc="upper left")  # Add a legend to the plot
+    plt.legend(["Actual data", "Best fit line"], loc="upper left")  # Add a legend to the plot
 
 main()  # Call the main function to start the program
