@@ -29,7 +29,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load the image and preprocess it
+# Load the image and preprocess it:
 def loadImage(name):
     """
     Load the image and preprocess it.
