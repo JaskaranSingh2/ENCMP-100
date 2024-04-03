@@ -154,6 +154,8 @@ def gerchbergSaxton(im, maxIters, Dphi):
     return images
 
 # Save the generated frames as PNG files
+import numpy as np
+import matplotlib.pyplot as plt
 
 def saveFrames(images):
     """
