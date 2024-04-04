@@ -29,10 +29,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load the image and preprocess it:
 def loadImage(name):
     """
-    Load the image and preprocess it.
+    Load the image used by the system, and preprocess it.
 
     Parameters:
     - name (str): The name of the image file.
@@ -65,16 +64,26 @@ def occultCircle(im, diameter):
     - numpy.ndarray: The image with the circle region occulted.
     - numpy.ndarray: The mask indicating the occulted pixels.
     """
+    # Define the center of the image
     h, w = im.shape
     center_h = h // 2
     center_w = w // 2
+
+    # Calculate the radius of the circle
     radius = diameter // 2
+
+    # Create a grid of coordinates for the image
     y, x = np.ogrid[:h, :w]
+
+    # Create a mask that identifies the pixels within the circle
     mask = (x - center_w)**2 + (y - center_h)**2 <= radius**2
+
+    # Set the pixels within the circle to 0 (black)
     im[mask] = 0
+
+    # Return the modified image and the mask
     return im, mask
 
-# Perform the optical system simulation
 def opticalSystem(im, diameter):
     """
     Apply occultation to the image, compute the 2D discrete Fourier transform of the image,
@@ -89,15 +98,22 @@ def opticalSystem(im, diameter):
     - numpy.ndarray: The random phase for the inverse transform.
     - numpy.ndarray: The mask indicating the occulted pixels.
     """
+    # Apply occultation to the image
     im, mask = occultCircle(im, diameter)
+    
+    # Compute the 2D discrete Fourier transform of the image
     (IMa, IMp) = dft2(im)
+    
+    # Generate random phase for the inverse transform
     rng = np.random.default_rng(12345)
     imR = rng.random(im.shape)
     (_, Dphi) = dft2(imR)
+    
+    # Perform inverse transform with phase correction
     im = idft2(IMa, IMp - Dphi)
+    
     return im, Dphi, mask
 
-# Apply occultation to the image
 def occultSquare(im, width):
     """
     Occults a square region in the given image.
@@ -109,25 +125,51 @@ def occultSquare(im, width):
     Returns:
     - numpy.ndarray: The image with the square region occulted.
     """
+    # Get the dimensions of the image
     h, w = im.shape
+    
+    # Calculate the center coordinates
     center_h = h // 2
     center_w = w // 2
+    
+    # Calculate the start and end coordinates of the square region
     start_h = center_h - width // 2
     end_h = start_h + width
     start_w = center_w - width // 2
     end_w = start_w + width
+    
+    # Set the pixels within the square region to 0 (black)
     im[start_h:end_h, start_w:end_w] = 0
+    
+    # Return the modified image
     return im
 
-# Compute the 2D discrete Fourier transform of a grayscale image
 def dft2(im):
+    """
+    Compute the 2D discrete Fourier transform of a grayscale image.
+
+    Parameters:
+    - im (numpy.ndarray): The input image.
+
+    Returns:
+    - tuple: A tuple containing the magnitude and phase of the Fourier transform.
+    """
     IM = np.fft.rfft2(im)
     IMa = np.abs(IM)
     IMp = np.angle(IM)
     return (IMa, IMp)
 
-# Compute the inverse 2D discrete Fourier transform
 def idft2(IMa, IMp):
+    """
+    Compute the inverse 2D discrete Fourier transform.
+
+    Parameters:
+    - IMa (numpy.ndarray): The magnitude of the Fourier transform.
+    - IMp (numpy.ndarray): The phase of the Fourier transform.
+
+    Returns:
+    - numpy.ndarray: The inverse Fourier transformed image.
+    """
     IM = IMa * (np.cos(IMp) + 1j * np.sin(IMp))
     im = np.fft.irfft2(IM)
     
@@ -151,10 +193,12 @@ def occultError(im, mask):
     error = np.sum(im[mask]**2)
     return error
 
-# Perform the Gerchberg-Saxton algorithm
 def gerchbergSaxton(im, maxIters, Dphi, mask):
     """
     Perform the Gerchberg-Saxton algorithm.
+
+    This function takes an input image, performs the Gerchberg-Saxton algorithm for a specified number of iterations,
+    and returns a list of generated images and a list of errors for each iteration.
 
     Parameters:
     - im (numpy.ndarray): The input image.
@@ -166,28 +210,27 @@ def gerchbergSaxton(im, maxIters, Dphi, mask):
     - list: List of generated images.
     - list: List of errors for each iteration.
     """
-    (IMa, IMp) = dft2(im)
-    images = []
-    errors = []
+    # Perform the Gerchberg-Saxton algorithm
+    (IMa, IMp) = dft2(im)  # Compute the magnitude and phase of the Fourier transform
+    images = []  # List to store generated images
+    errors = []  # List to store errors for each iteration
     
     for k in range(maxIters + 1):
         print("Iteration %d of %d" % (k, maxIters))
         
         if k == 0:
-            im = idft2(IMa, IMp)
+            im = idft2(IMa, IMp)  # Perform inverse transform without phase correction
         elif k == maxIters:
-            im = idft2(IMa, IMp + Dphi)
+            im = idft2(IMa, IMp + Dphi)  # Perform inverse transform with phase correction
         else:
             alpha = k / maxIters
-            im = idft2(IMa, (1 - alpha) * IMp + alpha * (IMp + Dphi))
+            im = idft2(IMa, (1 - alpha) * IMp + alpha * (IMp + Dphi))  # Perform inverse transform with interpolated phase
         
-        images.append(im)
-        error = occultError(im, mask)
-        errors.append(error)
+        images.append(im)  # Add generated image to the list
+        error = occultError(im, mask)  # Compute the occultation error
+        errors.append(error)  # Add error to the list
     
-    return images, errors
-
-# Save the generated frames as PNG files
+    return images, errors  # Return the list of generated images and errors
 
 def saveFrames(images, errors):
     """
@@ -200,36 +243,45 @@ def saveFrames(images, errors):
     Returns:
     - None
     """
+    # Create an empty image with the same shape as the first generated image
     shape = (images[0].shape[0], images[0].shape[1], 3)
     image = np.zeros(shape, images[0].dtype)
+
+    # Calculate the maximum number of iterations and maximum error value
     maxIters = len(images) - 1
     maxErrors = max(errors)
-    
+
+    # Iterate over each iteration
     for k in range(maxIters + 1):
-        
+        # Plot the errors for each iteration
         plt.plot(errors[:k+1], color='red')
         plt.xlabel("Iteration")
         plt.ylabel("Sum Square Error")
         plt.xlim(0, maxIters)
         plt.ylim(0, maxErrors)
         
+        # Set the RGB channels of the image to the current generated image
         image[:, :, 0] = images[k]
         image[:, :, 1] = images[k]
         image[:, :, 2] = images[k]
         
+        # Display the image with the errors as the background
         plt.imshow(image, extent=(0, maxIters, 0, maxErrors))
         plt.gca().set_aspect(maxIters / maxErrors)
         
+        # Set the title of the plot
         plt.title("Coronagraph Simulation")
+        
+        # Save the plot as a PNG file
         plt.savefig('coronagraph' + str(k) + '.png')
+        
+        # Display the plot
         plt.show()
 
-# Main function
 def main():
     im = loadImage('300_26a_big-vlt-s.jpg')
     im, Dphi, mask = opticalSystem(im, 300)
     images, errors = gerchbergSaxton(im, 10, Dphi, mask)
     saveFrames(images, errors)
 
-# Call the main function
 main()
