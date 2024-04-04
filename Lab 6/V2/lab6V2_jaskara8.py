@@ -206,23 +206,21 @@ def saveFrames(images, errors):
     maxErrors = max(errors)
     
     for k in range(maxIters + 1):
+        
+        plt.plot(errors[:k+1], color='red')
+        plt.xlabel("Iteration")
+        plt.ylabel("Sum Square Error")
+        plt.xlim(0, maxIters)
+        plt.ylim(0, maxErrors)
+        
         image[:, :, 0] = images[k]
         image[:, :, 1] = images[k]
         image[:, :, 2] = images[k]
         
-        plt.subplot(1, 2, 1)
-        plt.imshow(image)
-        plt.title("Iteration " + str(k) + " of " + str(maxIters))
-        plt.axis('off')
+        plt.imshow(image, extent=(0, maxIters, 0, maxErrors))
+        plt.gca().set_aspect(maxIters / maxErrors)
         
-        plt.subplot(1, 2, 2)
-        plt.plot(errors[:k+1])
-        plt.title("Occultation Error")
-        plt.xlabel("Iteration")
-        plt.ylabel("Error")
-        plt.xlim(0, maxIters)
-        plt.ylim(0, maxErrors)
-        
+        plt.title("Coronagraph Simulation")
         plt.savefig('coronagraph' + str(k) + '.png')
         plt.show()
 
