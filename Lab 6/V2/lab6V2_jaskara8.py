@@ -29,6 +29,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def main():
+    """
+    The main function that runs the simulation by initializing the class and invoking each function as required.
+    """
+    im = loadImage('300_26a_big-vlt-s.jpg')
+    im, Dphi, mask = opticalSystem(im, 300)
+    images, errors = gerchbergSaxton(im, 10, Dphi, mask)
+    saveFrames(images, errors)
+
 def loadImage(name):
     """
     Load the image used by the system, and preprocess it.
@@ -113,36 +122,6 @@ def opticalSystem(im, diameter):
     im = idft2(IMa, IMp - Dphi)
     
     return im, Dphi, mask
-
-def occultSquare(im, width):
-    """
-    Occults a square region in the given image.
-
-    Parameters:
-    - im (numpy.ndarray): The input image.
-    - width (int): The width of the square region to be occulted.
-
-    Returns:
-    - numpy.ndarray: The image with the square region occulted.
-    """
-    # Get the dimensions of the image
-    h, w = im.shape
-    
-    # Calculate the center coordinates
-    center_h = h // 2
-    center_w = w // 2
-    
-    # Calculate the start and end coordinates of the square region
-    start_h = center_h - width // 2
-    end_h = start_h + width
-    start_w = center_w - width // 2
-    end_w = start_w + width
-    
-    # Set the pixels within the square region to 0 (black)
-    im[start_h:end_h, start_w:end_w] = 0
-    
-    # Return the modified image
-    return im
 
 def dft2(im):
     """
@@ -278,10 +257,4 @@ def saveFrames(images, errors):
         # Display the plot
         plt.show()
 
-def main():
-    im = loadImage('300_26a_big-vlt-s.jpg')
-    im, Dphi, mask = opticalSystem(im, 300)
-    images, errors = gerchbergSaxton(im, 10, Dphi, mask)
-    saveFrames(images, errors)
-
-main()
+main() # Call the main function to run the simulation
