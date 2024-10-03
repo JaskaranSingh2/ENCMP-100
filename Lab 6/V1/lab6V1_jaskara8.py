@@ -9,8 +9,8 @@
 # Electrical and Computer Engineering
 # All rights reserved.
 #
-# Student name: Jaskaran Singh (100%)
-# Student CCID: jaskara8
+# Student name:
+# Student CCID: 
 # Others:
 #
 # To avoid plagiarism, list the names of persons, Version 0 author(s)
